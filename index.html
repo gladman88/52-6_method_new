@@ -204,7 +204,7 @@
             will-change: transform;
         }
 
-        .deck-card img:not(.card-back-logo) {
+        .deck-card img {
             width: 100%; height: 100%;
             object-fit: cover;
             display: block;
@@ -284,72 +284,13 @@
             transition: box-shadow 0.3s ease;
         }
 
-        .card-face img:not(.card-back-logo) {
+        .card-face img {
             width: 100%; height: 100%;
             object-fit: contain;
             display: block;
         }
 
         .card-front { transform: rotateY(180deg); }
-
-        /* ===== Card Back (CSS design) ===== */
-        .card-back-design {
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(ellipse at 50% 45%, rgba(189,160,106,0.15) 0%, transparent 55%),
-                linear-gradient(170deg, #4a3556 0%, #33213e 50%, #4a3556 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-back-design::before {
-            content: '';
-            position: absolute;
-            inset: 6px;
-            border-radius: calc(var(--card-r) - 4px);
-            border: 2px solid rgba(189,160,106,0.65);
-            background:
-                repeating-linear-gradient(
-                    45deg,
-                    transparent,
-                    transparent 5px,
-                    rgba(189,160,106,0.07) 5px,
-                    rgba(189,160,106,0.07) 6px
-                ),
-                repeating-linear-gradient(
-                    -45deg,
-                    transparent,
-                    transparent 5px,
-                    rgba(189,160,106,0.07) 5px,
-                    rgba(189,160,106,0.07) 6px
-                );
-        }
-
-        .card-back-design::after {
-            content: '';
-            position: absolute;
-            inset: 14px;
-            border-radius: calc(var(--card-r) - 10px);
-            border: 1px solid rgba(189,160,106,0.4);
-            box-shadow:
-                inset 0 0 40px rgba(189,160,106,0.06),
-                0 0 12px rgba(189,160,106,0.08);
-        }
-
-        .card-back-logo {
-            width: 52%;
-            height: auto;
-            position: relative;
-            z-index: 1;
-            border-radius: 50%;
-            mix-blend-mode: screen;
-            filter: drop-shadow(0 0 10px rgba(189,160,106,0.2))
-                    drop-shadow(0 0 28px rgba(189,160,106,0.08));
-        }
 
         /* Hover - desktop */
         @media (hover: hover) {
@@ -911,11 +852,11 @@
 
         <div class="arena">
             <div class="deck" id="deck">
-                <div class="deck-card" style="--i:0"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:1"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:2"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:3"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:4"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:0"><img src="cards/back.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:1"><img src="cards/back.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:2"><img src="cards/back.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:3"><img src="cards/back.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:4"><img src="cards/back.jpg" alt="" draggable="false"></div>
             </div>
             <div class="hand" id="hand"></div>
         </div>
@@ -959,7 +900,7 @@
     };
 
     const MODE_NAMES = { normal: 'Обычный', ladder: 'Лесенка', random: 'Рандом' };
-    const LOGO_IMG = 'cards/logo.png';
+    const BACK_IMG = 'cards/back.jpg';
     const REST_SECONDS = 60;
 
     const deck = document.getElementById('deck');
@@ -1067,9 +1008,7 @@
                     <img src="cards/${name}.jpg" alt="${CARD_NAMES[name] || ''}" draggable="false">
                 </div>
                 <div class="card-face card-back">
-                    <div class="card-back-design">
-                        <img class="card-back-logo" src="${LOGO_IMG}" alt="" draggable="false">
-                    </div>
+                    <img src="${BACK_IMG}" alt="" draggable="false">
                 </div>
             </div>`;
         return card;
@@ -1480,7 +1419,7 @@
     });
 
     const preload = new Image();
-    preload.src = LOGO_IMG;
+    preload.src = BACK_IMG;
 
     // Restore session if page was reloaded mid-training
     restoreState();

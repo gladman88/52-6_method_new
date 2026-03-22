@@ -396,18 +396,35 @@
 
         .card-overlay.active { opacity: 1; }
 
-        .card-overlay img {
-            max-width: 88vw;
-            max-height: 85vh;
-            border-radius: 18px;
-            box-shadow:
-                0 30px 90px rgba(0,0,0,0.6),
-                0 0 0 1px rgba(0,0,0,0.05);
+        .card-overlay-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
             transform: scale(0.85);
             transition: transform 0.5s var(--ease-out-back);
         }
 
-        .card-overlay.active img { transform: scale(1); }
+        .card-overlay.active .card-overlay-content { transform: scale(1); }
+
+        .card-overlay img {
+            max-width: 88vw;
+            max-height: 75vh;
+            border-radius: 18px;
+            box-shadow:
+                0 30px 90px rgba(0,0,0,0.6),
+                0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .card-overlay-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(1.4rem, 5vw, 2.2rem);
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.06em;
+            text-align: center;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+        }
 
         /* ===== Keyframes ===== */
         @keyframes fadeIn {
@@ -570,6 +587,22 @@
     const ALL_CARDS = [];
     VALUES.forEach(v => SUITS.forEach(s => ALL_CARDS.push(`${v}_${s}`)));
 
+    const CARD_NAMES = {
+        '1_1':'Выпадасана','1_2':'Самаконасана','1_3':'Выпад соскрутка','1_4':'Упор лёжа дханурасана',
+        '2_1':'Поклокакасана','2_2':'Сквиртвейдер','2_3':'Хвост дракона','2_4':'Хвост феи',
+        '3_1':'Собака мордой вниз + нога вверх','3_2':'Собака м. в. + нога назад','3_3':'Собака м. в. + рука и нога вверх','3_4':'Собака м. в. + рука и нога в стороны',
+        '4_1':'Чатуранга','4_2':'Эка хаста чатуранга','4_3':'Чатуранга соскрутка','4_4':'Эка хаста маюрасана',
+        '5_1':'Магомед','5_2':'Зульфия','5_3':'Феруза','5_4':'Вознесение',
+        '6_1':'БППЗ','6_2':'Васиштхасана','6_3':'Бок. планка соскрутка','6_4':'Бок. планка дханурасана',
+        '7_1':'Бакасана','7_2':'Лягухасана','7_3':'Паршва-нимфетка','7_4':'Эка пада бакасана',
+        '8_1':'Лоласана','8_2':'Брахмачариасана','8_3':'Брейк-твист','8_4':'Тик-так',
+        '9_1':'Иванный стол','9_2':'Стол + нога в сторону','9_3':'Стол соскрутка','9_4':'Полумост',
+        'J_1':'Лобасана','J_2':'Погребёнок','J_3':'Страус','J_4':'Тирекс',
+        'D_1':'Какасана-складасана','D_2':'Полумесяц','D_3':'Скрученный полумесяц','D_4':'Рояль',
+        'K_1':'Квадрапед + нога назад','K_2':'Квадрапед + нога в сторону','K_3':'Квадрапед + рука и нога назад','K_4':'Квадрапед + рука и нога в стороны',
+        'T_1':'Юникорн','T_2':'Секрет вниз','T_3':'Каундини 2','T_4':'Лягух'
+    };
+
     const BACK_IMG = 'cards/ZPУБАШКА.jpg';
 
     const deck = document.getElementById('deck');
@@ -594,10 +627,11 @@
     function createCard(name) {
         const card = document.createElement('div');
         card.className = 'card';
+        card.dataset.cardName = CARD_NAMES[name] || '';
         card.innerHTML = `
             <div class="card-inner">
                 <div class="card-face card-front">
-                    <img src="cards/${name}.jpg" alt="Поза" draggable="false">
+                    <img src="cards/${name}.jpg" alt="${CARD_NAMES[name] || ''}" draggable="false">
                 </div>
                 <div class="card-face card-back">
                     <img src="${BACK_IMG}" alt="" draggable="false">
@@ -733,11 +767,21 @@
 
         const overlay = document.createElement('div');
         overlay.className = 'card-overlay';
+        const wrap = document.createElement('div');
+        wrap.className = 'card-overlay-content';
         const zoomed = document.createElement('img');
         zoomed.src = img.src;
-        zoomed.alt = 'Поза';
+        zoomed.alt = card.dataset.cardName || 'Поза';
         zoomed.draggable = false;
-        overlay.appendChild(zoomed);
+        wrap.appendChild(zoomed);
+        const poseName = card.dataset.cardName;
+        if (poseName) {
+            const label = document.createElement('div');
+            label.className = 'card-overlay-label';
+            label.textContent = poseName;
+            wrap.appendChild(label);
+        }
+        overlay.appendChild(wrap);
         document.body.appendChild(overlay);
 
         requestAnimationFrame(() => {

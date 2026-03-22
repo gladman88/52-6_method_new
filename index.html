@@ -341,15 +341,14 @@
         }
 
         .card-back-logo {
-            width: 72%;
+            width: 52%;
             height: auto;
             position: relative;
             z-index: 1;
-            mix-blend-mode: screen;
             border-radius: 50%;
-            clip-path: circle(48%);
-            filter: drop-shadow(0 0 18px rgba(189,160,106,0.4))
-                    drop-shadow(0 0 50px rgba(189,160,106,0.15));
+            mix-blend-mode: screen;
+            filter: drop-shadow(0 0 10px rgba(189,160,106,0.2))
+                    drop-shadow(0 0 28px rgba(189,160,106,0.08));
         }
 
         /* Hover - desktop */
@@ -912,11 +911,11 @@
 
         <div class="arena">
             <div class="deck" id="deck">
-                <div class="deck-card" style="--i:0"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:1"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:2"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:3"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
-                <div class="deck-card" style="--i:4"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:0"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:1"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:2"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:3"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:4"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.png" alt="" draggable="false"></div></div>
             </div>
             <div class="hand" id="hand"></div>
         </div>
@@ -960,7 +959,7 @@
     };
 
     const MODE_NAMES = { normal: 'Обычный', ladder: 'Лесенка', random: 'Рандом' };
-    const LOGO_IMG = 'cards/logo.jpg';
+    const LOGO_IMG = 'cards/logo.png';
     const REST_SECONDS = 60;
 
     const deck = document.getElementById('deck');

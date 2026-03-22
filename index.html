@@ -205,7 +205,7 @@
             will-change: transform;
         }
 
-        .deck-card img {
+        .deck-card img:not(.card-back-logo) {
             width: 100%; height: 100%;
             object-fit: cover;
             display: block;
@@ -285,13 +285,73 @@
             transition: box-shadow 0.3s ease;
         }
 
-        .card-face img {
+        .card-face img:not(.card-back-logo) {
             width: 100%; height: 100%;
             object-fit: contain;
             display: block;
         }
 
         .card-front { transform: rotateY(180deg); }
+
+        /* ===== Card Back (CSS design) ===== */
+        .card-back-design {
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 50% 45%, rgba(189,160,106,0.15) 0%, transparent 55%),
+                linear-gradient(170deg, #4a3556 0%, #33213e 50%, #4a3556 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-back-design::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border-radius: calc(var(--card-r) - 4px);
+            border: 2px solid rgba(189,160,106,0.65);
+            background:
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 5px,
+                    rgba(189,160,106,0.07) 5px,
+                    rgba(189,160,106,0.07) 6px
+                ),
+                repeating-linear-gradient(
+                    -45deg,
+                    transparent,
+                    transparent 5px,
+                    rgba(189,160,106,0.07) 5px,
+                    rgba(189,160,106,0.07) 6px
+                );
+        }
+
+        .card-back-design::after {
+            content: '';
+            position: absolute;
+            inset: 14px;
+            border-radius: calc(var(--card-r) - 10px);
+            border: 1px solid rgba(189,160,106,0.4);
+            box-shadow:
+                inset 0 0 40px rgba(189,160,106,0.06),
+                0 0 12px rgba(189,160,106,0.08);
+        }
+
+        .card-back-logo {
+            width: 72%;
+            height: auto;
+            position: relative;
+            z-index: 1;
+            mix-blend-mode: screen;
+            border-radius: 50%;
+            clip-path: circle(48%);
+            filter: drop-shadow(0 0 18px rgba(189,160,106,0.4))
+                    drop-shadow(0 0 50px rgba(189,160,106,0.15));
+        }
 
         /* Hover - desktop */
         @media (hover: hover) {
@@ -307,13 +367,18 @@
         /* ===== Controls ===== */
         .controls {
             flex-shrink: 0;
-            display: flex;
-            gap: 0.7rem;
+            display: grid;
+            justify-items: center;
+            width: 100%;
             margin-top: clamp(0.8rem, 2vh, 1.3rem);
             opacity: 0;
             animation: fadeInUp 0.8s var(--ease-out-expo) 0.9s forwards;
             position: relative;
             z-index: 1;
+        }
+
+        .controls > * {
+            grid-area: 1 / 1;
         }
 
         .btn {
@@ -322,7 +387,7 @@
             font-weight: 600;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            padding: clamp(0.7rem, 1.8vh, 0.9rem) clamp(1.8rem, 6vw, 2.8rem);
+            padding: clamp(0.7rem, 1.8vh, 0.9rem) clamp(1.2rem, 4vw, 1.8rem);
             border: none;
             border-radius: 16px;
             cursor: pointer;
@@ -378,6 +443,272 @@
         }
 
         .hidden { display: none !important; }
+
+        /* ===== Mode Buttons ===== */
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            align-items: center;
+        }
+
+        @media (min-width: 600px) {
+            .mode-buttons { flex-direction: row; gap: 0.7rem; }
+        }
+
+        .btn-mode {
+            min-width: 170px;
+        }
+
+        /* ===== Training Controls ===== */
+        .training-controls {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            justify-self: stretch;
+        }
+
+        .training-controls .btn {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .mode-badge, .step-badge {
+            grid-row: 1;
+            font-size: clamp(0.75rem, 2.2vw, 0.88rem);
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--gold);
+            border: 1px solid rgba(189,160,106,0.25);
+            border-radius: 20px;
+            padding: 0.2em 0.75em;
+            background: rgba(189,160,106,0.06);
+            line-height: 1.4;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .mode-badge {
+            grid-column: 1;
+            justify-self: start;
+        }
+
+        .step-badge {
+            grid-column: 3;
+            justify-self: end;
+        }
+
+        /* ===== Card Active / Dimmed ===== */
+        .card.card-active {
+            opacity: 1;
+            transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+        }
+
+        .card.card-active .card-face {
+            box-shadow:
+                0 2px 6px rgba(0,0,0,0.3),
+                0 8px 24px rgba(0,0,0,0.25),
+                0 0 28px rgba(189,160,106,0.35);
+            border: 3px solid rgba(189,160,106,0.8);
+        }
+
+        .card.card-dimmed {
+            opacity: 0.18;
+            filter: grayscale(1) blur(4px);
+            transform: scale(0.95) !important;
+            pointer-events: none;
+            transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+        }
+
+        /* ===== Rest Overlay ===== */
+        .rest-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(10, 10, 26, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            opacity: 0;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .rest-circle {
+            width: clamp(120px, 35vw, 200px);
+            height: clamp(120px, 35vw, 200px);
+            border-radius: 50%;
+            border: 3px solid rgba(189,160,106,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: breatheCircle 4s ease-in-out infinite;
+        }
+
+        .rest-timer {
+            font-size: clamp(2.5rem, 10vw, 4.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold), #fff, var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .rest-label {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-weight: 400;
+            color: rgba(189,160,106,0.7);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .rest-progress {
+            width: clamp(160px, 50vw, 300px);
+            height: 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .rest-progress-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 2px;
+            transition: width 0.3s linear;
+        }
+
+        .rest-skip {
+            margin-top: 0.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(0.78rem, 2.2vw, 0.88rem);
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+            cursor: pointer;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            padding: 0.55em 1.6em;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .rest-skip:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8);
+        }
+
+        .rest-skip:active { transform: scale(0.95); }
+
+        @keyframes breatheCircle {
+            0%, 100% { transform: scale(0.85); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* ===== Complete Overlay ===== */
+        .complete-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(10, 10, 26, 0.94);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .complete-check {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 0.5rem;
+        }
+
+        .complete-check circle {
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 2;
+            stroke-dasharray: 226;
+            stroke-dashoffset: 226;
+            animation: drawCircle 0.6s ease forwards 0.2s;
+        }
+
+        .complete-check polyline {
+            fill: none;
+            stroke: var(--gold-light);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: drawCheck 0.4s ease forwards 0.7s;
+        }
+
+        @keyframes drawCircle {
+            to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .complete-title {
+            font-size: clamp(1.6rem, 6vw, 2.8rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold), #fff, var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .complete-subtitle {
+            font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.1em;
+        }
+
+        .complete-btn {
+            margin-top: 1rem;
+        }
+
+        /* ===== Confetti ===== */
+        .confetti-piece {
+            position: fixed;
+            width: 8px;
+            height: 14px;
+            top: -20px;
+            z-index: 5001;
+            border-radius: 2px;
+            animation: confettiFall var(--fall-duration) ease-in forwards;
+            animation-delay: var(--fall-delay);
+            opacity: 0;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(var(--fall-rotate)) scale(0.4);
+            }
+        }
 
         /* ===== Card Overlay (Zoom) ===== */
         .card-overlay {
@@ -566,21 +897,31 @@
 
         <div class="arena">
             <div class="deck" id="deck">
-                <div class="deck-card" style="--i:0"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
-                <div class="deck-card" style="--i:1"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
-                <div class="deck-card" style="--i:2"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
-                <div class="deck-card" style="--i:3"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
-                <div class="deck-card" style="--i:4"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:0"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:1"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:2"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:3"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
+                <div class="deck-card" style="--i:4"><div class="card-back-design"><img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false"></div></div>
             </div>
             <div class="hand" id="hand"></div>
         </div>
 
         <div class="controls" id="controls">
-            <button class="btn btn-primary" id="dealBtn">Сдать</button>
+            <div class="mode-buttons" id="modeButtons">
+                <button class="btn btn-primary btn-mode" onclick="selectMode('normal')">Обычный</button>
+                <button class="btn btn-primary btn-mode" onclick="selectMode('ladder')">Лесенка</button>
+                <button class="btn btn-glass btn-mode" onclick="selectMode('random')">Рандом</button>
+            </div>
+            <div class="training-controls hidden" id="trainingControls">
+                <div class="mode-badge" id="modeBadge"></div>
+                <button class="btn btn-primary" id="trainingBtn"></button>
+                <div class="step-badge hidden" id="stepBadge"></div>
+            </div>
         </div>
     </div>
 
 <script>
+/* exported selectMode */
 (() => {
     const VALUES = ['1','2','3','4','5','6','7','8','9','T','J','D','K'];
     const SUITS = ['1','2','3','4'];
@@ -603,15 +944,27 @@
         'T_1':'Юникорн','T_2':'Секрет вниз','T_3':'Каундини 2','T_4':'Лягух'
     };
 
-    const BACK_IMG = 'cards/ZPУБАШКА.jpg';
+    const MODE_NAMES = { normal: 'Обычный', ladder: 'Лесенка', random: 'Рандом' };
+    const LOGO_IMG = 'cards/logo.jpg';
+    const REST_SECONDS = 60;
 
     const deck = document.getElementById('deck');
     const hand = document.getElementById('hand');
-    const dealBtn = document.getElementById('dealBtn');
+    const modeButtons = document.getElementById('modeButtons');
+    const trainingControls = document.getElementById('trainingControls');
+    const modeBadge = document.getElementById('modeBadge');
+    const stepBadge = document.getElementById('stepBadge');
+    const trainingBtn = document.getElementById('trainingBtn');
 
-    let isDealt = false;
     let isAnimating = false;
     let deckCenter = { x: 0, y: 0 };
+
+    // Training state
+    let appState = 'START';
+    let activeMode = null;
+    let trainingSteps = [];
+    let currentStepIndex = 0;
+    let restTimerId = null;
 
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -634,7 +987,9 @@
                     <img src="cards/${name}.jpg" alt="${CARD_NAMES[name] || ''}" draggable="false">
                 </div>
                 <div class="card-face card-back">
-                    <img src="${BACK_IMG}" alt="" draggable="false">
+                    <div class="card-back-design">
+                        <img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false">
+                    </div>
                 </div>
             </div>`;
         return card;
@@ -645,23 +1000,85 @@
     function setupHover(card, rot) {
         if (!hasHover) return;
         card.addEventListener('mouseenter', () => {
-            if (!card._landed) return;
+            if (!card._landed || card.classList.contains('card-dimmed')) return;
             card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease';
             card.style.transform = `translateY(-8px) scale(1.04) rotate(${rot}deg)`;
             card.classList.add('hover-lift');
         });
         card.addEventListener('mouseleave', () => {
-            if (!card._landed) return;
+            if (!card._landed || card.classList.contains('card-dimmed')) return;
             card.style.transition = 'transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease';
             card.style.transform = `rotate(${rot}deg)`;
             card.classList.remove('hover-lift');
         });
     }
 
+    // ===== Step generators =====
+
+    function generateNormalSteps() {
+        return [
+            [0, 1],
+            [2, 3],
+            [4, 5],
+            [0, 1, 2],
+            [3, 4, 5],
+            [0, 1, 2, 3, 4, 5]
+        ];
+    }
+
+    function generateLadderSteps() {
+        return [
+            [0],
+            [1],
+            [0, 1],
+            [2],
+            [0, 1, 2],
+            [3],
+            [0, 1, 2, 3],
+            [4],
+            [0, 1, 2, 3, 4],
+            [5],
+            [0, 1, 2, 3, 4, 5]
+        ];
+    }
+
+    // ===== Mode selection (global for onclick) =====
+
+    window.selectMode = function(mode) {
+        if (isAnimating) return;
+        if (mode === 'random') {
+            activeMode = Math.random() < 0.5 ? 'normal' : 'ladder';
+        } else {
+            activeMode = mode;
+        }
+        // FLIP: capture deck position before layout change
+        const beforeY = deck.getBoundingClientRect().top;
+
+        modeButtons.classList.add('hidden');
+        trainingControls.classList.remove('hidden');
+        trainingControls.style.visibility = 'hidden';
+
+        // FLIP: animate deck to its new position smoothly
+        const afterY = deck.getBoundingClientRect().top;
+        const deltaY = beforeY - afterY;
+        if (deltaY !== 0) {
+            deck.style.transition = 'none';
+            deck.style.transform = `translateY(${deltaY}px)`;
+            deck.offsetHeight;
+            deck.style.transition = 'transform 0.45s var(--ease-out-expo)';
+            deck.style.transform = '';
+        }
+        modeBadge.textContent = MODE_NAMES[activeMode];
+        trainingBtn.textContent = 'Начать';
+        appState = 'DEALING';
+        deal();
+    };
+
+    // ===== Deal =====
+
     async function deal() {
         if (isAnimating) return;
         isAnimating = true;
-        dealBtn.disabled = true;
 
         const dr = deck.getBoundingClientRect();
         deckCenter = { x: dr.left + dr.width / 2, y: dr.top + dr.height / 2 };
@@ -712,22 +1129,182 @@
         await sleep(850);
         cards.forEach(c => { c._landed = true; });
 
-        dealBtn.textContent = 'Ещё раз';
-        dealBtn.disabled = false;
-        isDealt = true;
+        // Reveal training controls (space was already reserved)
+        appState = 'DEALT';
+        trainingControls.style.visibility = '';
+        trainingBtn.onclick = startTraining;
+
         isAnimating = false;
     }
 
-    async function redeal() {
-        if (isAnimating) return;
-        isAnimating = true;
-        dealBtn.disabled = true;
+    // ===== Training =====
 
+    function startTraining() {
+        trainingSteps = activeMode === 'ladder' ? generateLadderSteps() : generateNormalSteps();
+        currentStepIndex = 0;
+        appState = 'TRAINING';
+        showStep(currentStepIndex);
+    }
+
+    function showStep(index) {
+        const activeIndices = trainingSteps[index];
+        const cards = hand.querySelectorAll('.card');
+        const totalSteps = trainingSteps.length;
+
+        cards.forEach((card, i) => {
+            card.classList.remove('card-active', 'card-dimmed', 'hover-lift');
+            if (activeIndices.includes(i)) {
+                card.classList.add('card-active');
+            } else {
+                card.classList.add('card-dimmed');
+            }
+        });
+
+        modeBadge.textContent = MODE_NAMES[activeMode];
+        stepBadge.textContent = `${index + 1} / ${totalSteps}`;
+        stepBadge.classList.remove('hidden');
+        trainingBtn.textContent = 'Завершить';
+        trainingBtn.onclick = finishStep;
+    }
+
+    function finishStep() {
+        const isLast = currentStepIndex >= trainingSteps.length - 1;
+        if (isLast) {
+            showComplete();
+        } else {
+            startRest();
+        }
+    }
+
+    // ===== Rest Overlay =====
+
+    function startRest() {
+        appState = 'RESTING';
+        let secondsLeft = REST_SECONDS;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'rest-overlay';
+        overlay.innerHTML = `
+            <div class="rest-label">Дышите глубоко</div>
+            <div class="rest-circle">
+                <div class="rest-timer">${secondsLeft}</div>
+            </div>
+            <div class="rest-progress"><div class="rest-progress-bar"></div></div>
+            <button class="rest-skip">Пропустить</button>
+        `;
+        document.body.appendChild(overlay);
+
+        const timerEl = overlay.querySelector('.rest-timer');
+        const progressBar = overlay.querySelector('.rest-progress-bar');
+        const skipBtn = overlay.querySelector('.rest-skip');
+
+        function cleanup() {
+            clearInterval(restTimerId);
+            restTimerId = null;
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => overlay.remove(), 300);
+        }
+
+        function advance() {
+            cleanup();
+            currentStepIndex++;
+            appState = 'TRAINING';
+            showStep(currentStepIndex);
+        }
+
+        restTimerId = setInterval(() => {
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                advance();
+                return;
+            }
+            timerEl.textContent = secondsLeft;
+            progressBar.style.width = `${(secondsLeft / REST_SECONDS) * 100}%`;
+        }, 1000);
+
+        skipBtn.addEventListener('click', advance);
+    }
+
+    // ===== Complete Overlay =====
+
+    function showComplete() {
+        appState = 'COMPLETE';
+
+        // Clear card highlights
+        hand.querySelectorAll('.card').forEach(c => {
+            c.classList.remove('card-active', 'card-dimmed');
+        });
+
+        trainingControls.style.visibility = 'hidden';
+
+        const overlay = document.createElement('div');
+        overlay.className = 'complete-overlay';
+        overlay.innerHTML = `
+            <svg class="complete-check" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="36" />
+                <polyline points="24,42 35,53 56,30" />
+            </svg>
+            <div class="complete-title">Тренировка завершена!</div>
+            <div class="complete-subtitle">${MODE_NAMES[activeMode]}</div>
+            <button class="btn btn-primary complete-btn" id="resetBtn">В начало</button>
+        `;
+        document.body.appendChild(overlay);
+
+        createConfetti();
+
+        overlay.querySelector('#resetBtn').addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.4s ease';
+            setTimeout(() => {
+                overlay.remove();
+                resetToStart();
+            }, 400);
+        });
+    }
+
+    // ===== Confetti =====
+
+    function createConfetti() {
+        const colors = [
+            '#BDA06A', '#D4C89A', '#c4a24e', '#dfc57a',
+            '#f0d98c', '#a8873d', '#e6c66e', '#fff1c0'
+        ];
+        for (let i = 0; i < 50; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = `${Math.random() * 100}vw`;
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.setProperty('--fall-duration', `${1.5 + Math.random() * 2}s`);
+            piece.style.setProperty('--fall-delay', `${Math.random() * 0.8}s`);
+            piece.style.setProperty('--fall-rotate', `${360 + Math.random() * 720}deg`);
+            piece.style.width = `${5 + Math.random() * 6}px`;
+            piece.style.height = `${8 + Math.random() * 10}px`;
+            document.body.appendChild(piece);
+            setTimeout(() => piece.remove(), 4500);
+        }
+    }
+
+    // ===== Reset =====
+
+    function resetToStart() {
+        appState = 'START';
+        activeMode = null;
+        trainingSteps = [];
+        currentStepIndex = 0;
+        if (restTimerId) {
+            clearInterval(restTimerId);
+            restTimerId = null;
+        }
+
+        // Remove any lingering overlays
+        document.querySelectorAll('.rest-overlay, .complete-overlay, .confetti-piece').forEach(el => el.remove());
+
+        // Gather cards back to deck
         const cards = [...hand.querySelectorAll('.card')];
-
         cards.forEach(card => {
             card._landed = false;
-            card.classList.remove('hover-lift');
+            card.classList.remove('hover-lift', 'card-active', 'card-dimmed');
 
             const r = card.getBoundingClientRect();
             const dx = deckCenter.x - (r.left + r.width / 2);
@@ -739,28 +1316,22 @@
             card.style.opacity = '0';
         });
 
-        await sleep(480);
-        hand.innerHTML = '';
-        deck.classList.remove('hidden');
-        await sleep(80);
-
-        isDealt = false;
-        isAnimating = false;
-        deal();
+        setTimeout(() => {
+            hand.innerHTML = '';
+            deck.classList.remove('hidden');
+            trainingControls.style.visibility = '';
+            trainingControls.classList.add('hidden');
+            stepBadge.classList.add('hidden');
+            modeButtons.classList.remove('hidden');
+        }, 500);
     }
 
-    dealBtn.addEventListener('click', () => {
-        if (isDealt) redeal();
-        else deal();
-    });
-
-    deck.addEventListener('click', () => {
-        if (!isDealt && !isAnimating) deal();
-    });
+    // ===== Card Zoom (click) =====
 
     hand.addEventListener('click', (e) => {
         const card = e.target.closest('.card');
         if (!card || !card._landed || isAnimating) return;
+        if (card.classList.contains('card-dimmed')) return;
 
         const img = card.querySelector('.card-front img');
         if (!img) return;
@@ -794,14 +1365,22 @@
         };
 
         overlay.addEventListener('click', close);
-        const onKey = (e) => {
-            if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
+        const onKey = (ev) => {
+            if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
         };
         document.addEventListener('keydown', onKey);
     });
 
+    // Deck click — visual hint only in START state
+    deck.addEventListener('click', () => {
+        if (appState === 'START' && !isAnimating) {
+            deck.classList.add('shuffling');
+            setTimeout(() => deck.classList.remove('shuffling'), 500);
+        }
+    });
+
     const preload = new Image();
-    preload.src = BACK_IMG;
+    preload.src = LOGO_IMG;
 })();
 </script>
 

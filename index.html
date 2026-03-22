@@ -137,7 +137,6 @@
         }
 
         .subtitle {
-            font-weight: 400;
             font-size: clamp(0.85rem, 3vw, 1.15rem);
             color: rgba(189,160,106,0.75);
             letter-spacing: 0.3em;
@@ -974,6 +973,9 @@
 
     let isAnimating = false;
     let deckCenter = { x: 0, y: 0 };
+    let flipTimeouts = [];
+    let confettiTimeouts = [];
+    let advanceTimerId = null;
 
     // Training state
     let appState = 'START';
@@ -981,8 +983,71 @@
     let trainingSteps = [];
     let currentStepIndex = 0;
     let restTimerId = null;
+    let chosenCards = [];
 
     const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // ===== State persistence =====
+
+    function saveState() {
+        try {
+            sessionStorage.setItem('yoga526_session', JSON.stringify({
+                appState, activeMode, trainingSteps, currentStepIndex, chosenCards
+            }));
+        } catch (e) {}
+    }
+
+    function clearSavedState() {
+        try { sessionStorage.removeItem('yoga526_session'); } catch (e) {}
+    }
+
+    function restoreState() {
+        try {
+            const raw = sessionStorage.getItem('yoga526_session');
+            if (!raw) return false;
+            const saved = JSON.parse(raw);
+            if (!saved || !['TRAINING', 'RESTING'].includes(saved.appState)) {
+                clearSavedState();
+                return false;
+            }
+
+            activeMode = saved.activeMode;
+            trainingSteps = saved.trainingSteps;
+            currentStepIndex = saved.currentStepIndex;
+            chosenCards = saved.chosenCards;
+
+            const rotations = [-2.2, 1.4, -0.8, 1.8, -1.5, 0.6];
+            chosenCards.forEach((name, i) => {
+                const card = createCard(name);
+                hand.appendChild(card);
+                card.style.transform = `rotate(${rotations[i]}deg)`;
+                card.style.opacity = '1';
+                card.querySelector('.card-inner').style.transform = 'rotateY(180deg)';
+                card._landed = true;
+                setupHover(card, rotations[i]);
+            });
+
+            deck.classList.add('hidden');
+            modeButtons.classList.add('hidden');
+            trainingControls.classList.remove('hidden');
+
+            // deckCenter from arena center (deck is display:none)
+            const ar = document.querySelector('.arena').getBoundingClientRect();
+            deckCenter = { x: ar.left + ar.width / 2, y: ar.top + ar.height / 2 };
+
+            if (saved.appState === 'TRAINING') {
+                appState = 'TRAINING';
+                showStep(currentStepIndex);
+            } else {
+                appState = 'RESTING';
+                startRest();
+            }
+            return true;
+        } catch (e) {
+            clearSavedState();
+            return false;
+        }
+    }
 
     function pickRandom(arr, n) {
         const a = [...arr];
@@ -1004,7 +1069,7 @@
                 </div>
                 <div class="card-face card-back">
                     <div class="card-back-design">
-                        <img class="card-back-logo" src="cards/logo.jpg" alt="" draggable="false">
+                        <img class="card-back-logo" src="${LOGO_IMG}" alt="" draggable="false">
                     </div>
                 </div>
             </div>`;
@@ -1104,6 +1169,7 @@
         deck.classList.remove('shuffling');
 
         const chosen = pickRandom(ALL_CARDS, 6);
+        chosenCards = chosen;
         chosen.forEach(name => hand.appendChild(createCard(name)));
 
         const cards = hand.querySelectorAll('.card');
@@ -1135,9 +1201,9 @@
             card.style.transform = `rotate(${rot}deg)`;
             card.style.opacity = '1';
 
-            setTimeout(() => {
+            flipTimeouts.push(setTimeout(() => {
                 card.querySelector('.card-inner').style.transform = 'rotateY(180deg)';
-            }, 180);
+            }, 180));
 
             if (navigator.vibrate) navigator.vibrate(10);
         }
@@ -1156,6 +1222,7 @@
     // ===== Training =====
 
     function startTraining() {
+        if (appState !== 'DEALT') return;
         trainingSteps = activeMode === 'ladder' ? generateLadderSteps() : generateNormalSteps();
         currentStepIndex = 0;
         appState = 'TRAINING';
@@ -1163,6 +1230,7 @@
     }
 
     function showStep(index) {
+        saveState();
         const activeIndices = trainingSteps[index];
         const cards = hand.querySelectorAll('.card');
         const totalSteps = trainingSteps.length;
@@ -1184,10 +1252,13 @@
     }
 
     function finishStep() {
+        if (appState !== 'TRAINING') return;
         const isLast = currentStepIndex >= trainingSteps.length - 1;
         if (isLast) {
+            appState = 'COMPLETE';
             showComplete();
         } else {
+            appState = 'RESTING';
             startRest();
         }
     }
@@ -1196,6 +1267,7 @@
 
     function startRest() {
         appState = 'RESTING';
+        saveState();
         let secondsLeft = REST_SECONDS;
 
         const overlay = document.createElement('div');
@@ -1214,20 +1286,16 @@
         const progressBar = overlay.querySelector('.rest-progress-bar');
         const skipBtn = overlay.querySelector('.rest-skip');
 
-        function cleanup() {
-            clearInterval(restTimerId);
-            restTimerId = null;
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => overlay.remove(), 300);
-        }
-
+        let advancing = false;
         function advance() {
+            if (advancing) return;
+            advancing = true;
             clearInterval(restTimerId);
             restTimerId = null;
             overlay.style.opacity = '0';
             overlay.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => {
+            advanceTimerId = setTimeout(() => {
+                advanceTimerId = null;
                 overlay.remove();
                 currentStepIndex++;
                 appState = 'TRAINING';
@@ -1252,6 +1320,7 @@
 
     function showComplete() {
         appState = 'COMPLETE';
+        clearSavedState();
 
         // Clear card highlights
         hand.querySelectorAll('.card').forEach(c => {
@@ -1303,7 +1372,7 @@
             piece.style.width = `${5 + Math.random() * 6}px`;
             piece.style.height = `${8 + Math.random() * 10}px`;
             document.body.appendChild(piece);
-            setTimeout(() => piece.remove(), 4500);
+            confettiTimeouts.push(setTimeout(() => piece.remove(), 4500));
         }
     }
 
@@ -1311,6 +1380,7 @@
 
     function resetToStart() {
         appState = 'START';
+        clearSavedState();
         activeMode = null;
         trainingSteps = [];
         currentStepIndex = 0;
@@ -1318,6 +1388,11 @@
             clearInterval(restTimerId);
             restTimerId = null;
         }
+        if (advanceTimerId) { clearTimeout(advanceTimerId); advanceTimerId = null; }
+        flipTimeouts.forEach(clearTimeout);
+        flipTimeouts = [];
+        confettiTimeouts.forEach(clearTimeout);
+        confettiTimeouts = [];
 
         // Remove any lingering overlays
         document.querySelectorAll('.rest-overlay, .complete-overlay, .confetti-piece').forEach(el => el.remove());
@@ -1381,15 +1456,19 @@
             requestAnimationFrame(() => overlay.classList.add('active'));
         });
 
+        let closing = false;
         const close = () => {
+            if (closing) return;
+            closing = true;
+            document.removeEventListener('keydown', onKey);
             overlay.classList.remove('active');
             overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
         };
+        const onKey = (ev) => {
+            if (ev.key === 'Escape') close();
+        };
 
         overlay.addEventListener('click', close);
-        const onKey = (ev) => {
-            if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
-        };
         document.addEventListener('keydown', onKey);
     });
 
@@ -1403,6 +1482,9 @@
 
     const preload = new Image();
     preload.src = LOGO_IMG;
+
+    // Restore session if page was reloaded mid-training
+    restoreState();
 })();
 </script>
 

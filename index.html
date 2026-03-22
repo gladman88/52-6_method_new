@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0D0D1A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>52/6 — Разумная йога</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230D0D1A'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-family='sans-serif' font-size='12' font-weight='700' fill='%23BDA06A'%3E52%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0D0D1A;
+            --text: rgba(255,255,255,0.92);
+            --text-dim: rgba(255,255,255,0.5);
+            --gold: #BDA06A;
+            --gold-light: #D4C89A;
+            --card-r: 14px;
+            --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html { height: 100%; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 15% 70%, rgba(88,28,135,0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 20%, rgba(15,52,96,0.35) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 90%, rgba(100,30,50,0.2) 0%, transparent 45%),
+                radial-gradient(ellipse at 30% 20%, rgba(45,27,78,0.25) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text);
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ===== Animated Background Orbs ===== */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            will-change: transform;
+        }
+        .orb-1 {
+            width: 55vmax; height: 55vmax;
+            background: radial-gradient(circle, rgba(189,160,106,0.12) 0%, transparent 60%);
+            top: -25%; left: -20%;
+            animation: orbFloat1 22s ease-in-out infinite;
+        }
+        .orb-2 {
+            width: 50vmax; height: 50vmax;
+            background: radial-gradient(circle, rgba(80,40,140,0.15) 0%, transparent 60%);
+            bottom: -30%; right: -25%;
+            animation: orbFloat2 28s ease-in-out infinite;
+        }
+        .orb-3 {
+            width: 40vmax; height: 40vmax;
+            background: radial-gradient(circle, rgba(120,40,70,0.12) 0%, transparent 60%);
+            top: 45%; left: 55%;
+            animation: orbFloat3 19s ease-in-out infinite;
+        }
+
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(8vw, 6vh) scale(1.1); }
+            66% { transform: translate(-5vw, 3vh) scale(0.95); }
+        }
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            40% { transform: translate(-6vw, -8vh) scale(1.08); }
+            70% { transform: translate(4vw, -3vh) scale(0.97); }
+        }
+        @keyframes orbFloat3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-10vw, 5vh) scale(1.12); }
+        }
+
+        /* ===== Grain Overlay ===== */
+        .grain {
+            position: fixed; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: overlay;
+        }
+
+        /* ===== App Layout ===== */
+        .app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: clamp(1.2rem, 4vh, 2.5rem) 1rem clamp(0.8rem, 2.5vh, 1.5rem);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== Header ===== */
+        header {
+            text-align: center;
+            opacity: 0;
+            animation: fadeInDown 1s var(--ease-out-expo) 0.2s forwards;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: clamp(2.8rem, 11vw, 5.5rem);
+            letter-spacing: -0.02em;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, var(--gold) 40%, var(--gold-light) 60%, #fff 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmerTitle 5s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes shimmerTitle {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-weight: 400;
+            font-size: clamp(0.85rem, 3vw, 1.15rem);
+            color: rgba(189,160,106,0.75);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-top: 0.4rem;
+            margin-bottom: clamp(0.8rem, 2.5vh, 1.5rem);
+        }
+
+        /* ===== Arena ===== */
+        .arena {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            min-height: 0;
+            opacity: 0;
+            animation: fadeIn 0.8s ease 0.5s forwards;
+        }
+
+        /* ===== Deck ===== */
+        .deck {
+            position: relative;
+            z-index: 2;
+            width: clamp(160px, 38vw, 260px);
+            aspect-ratio: 5 / 7;
+            transition: opacity 0.45s ease, transform 0.5s var(--ease-out-expo);
+            cursor: pointer;
+        }
+
+        .deck::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 5%;
+            right: 5%;
+            height: 28px;
+            background: radial-gradient(ellipse, rgba(189,160,106,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(10px);
+            transition: opacity 0.4s;
+        }
+
+        .deck.hidden {
+            opacity: 0;
+            transform: scale(0.6);
+            pointer-events: none;
+        }
+
+        .deck.hidden::after { opacity: 0; }
+
+        .deck-card {
+            position: absolute; inset: 0;
+            border-radius: var(--card-r);
+            overflow: hidden;
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.4),
+                0 8px 24px rgba(0,0,0,0.25);
+            transform:
+                translate(calc(var(--i) * -0.8px), calc(var(--i) * -1.6px))
+                rotate(calc(var(--i) * 0.35deg));
+            will-change: transform;
+        }
+
+        .deck-card img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .deck-card:last-child {
+            animation: breathe 4s ease-in-out infinite;
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.4),
+                0 12px 32px rgba(0,0,0,0.3);
+        }
+
+        .deck.shuffling .deck-card {
+            animation: shuffle 0.5s ease-in-out !important;
+        }
+        .deck.shuffling .deck-card:nth-child(2) { animation-delay: 0.02s !important; }
+        .deck.shuffling .deck-card:nth-child(3) { animation-delay: 0.04s !important; }
+        .deck.shuffling .deck-card:nth-child(4) { animation-delay: 0.06s !important; }
+        .deck.shuffling .deck-card:nth-child(5) { animation-delay: 0.08s !important; }
+
+        /* ===== Hand Grid ===== */
+        .hand {
+            position: absolute;
+            inset: 0;
+            z-index: 100;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(10px, 1.5vw, 14px);
+            padding: 0 8px;
+            justify-items: center;
+            align-content: center;
+            pointer-events: none;
+        }
+
+        .hand .card {
+            pointer-events: auto;
+        }
+
+        /* ===== Card ===== */
+        /*
+         * Card width is derived from viewport height so N rows always fit.
+         * Formula: (available_height / rows) * 5/7
+         * This guarantees cards never overflow vertically.
+         */
+        .card {
+            aspect-ratio: 5 / 7;
+            width: min(100%, calc((100dvh - 220px) / 3 * 5 / 7));
+            perspective: 900px;
+            cursor: pointer;
+            will-change: transform, opacity;
+            /* Clean — no frame, shadow lives on card-face */
+            padding: 0;
+            background: none;
+            border: none;
+            border-radius: var(--card-r);
+        }
+
+        .card-inner {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.55s ease;
+        }
+
+        .card-face {
+            position: absolute; inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: var(--card-r);
+            overflow: hidden;
+            background: #fff;
+            box-shadow:
+                0 2px 6px rgba(0,0,0,0.3),
+                0 8px 24px rgba(0,0,0,0.25),
+                0 20px 50px rgba(0,0,0,0.2),
+                0 0 0 1px rgba(255,255,255,0.04);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card-face img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .card-front { transform: rotateY(180deg); }
+
+        /* Hover - desktop */
+        @media (hover: hover) {
+            .card.hover-lift .card-face {
+                box-shadow:
+                    0 8px 20px rgba(0,0,0,0.4),
+                    0 24px 60px rgba(0,0,0,0.25),
+                    0 0 20px rgba(189,160,106,0.06),
+                    0 0 0 1px rgba(255,255,255,0.06);
+            }
+        }
+
+        /* ===== Controls ===== */
+        .controls {
+            flex-shrink: 0;
+            display: flex;
+            gap: 0.7rem;
+            margin-top: clamp(0.8rem, 2vh, 1.3rem);
+            opacity: 0;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.9s forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(0.82rem, 2.5vw, 0.95rem);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: clamp(0.7rem, 1.8vh, 0.9rem) clamp(1.8rem, 6vw, 2.8rem);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.3s ease,
+                filter 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c4a24e 0%, #dfc57a 50%, #c4a24e 100%);
+            color: #2a1e00;
+            box-shadow:
+                0 4px 20px rgba(189,160,106,0.3),
+                0 0 50px rgba(189,160,106,0.1);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            box-shadow:
+                0 6px 30px rgba(189,160,106,0.35),
+                0 0 70px rgba(189,160,106,0.12);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::after { left: 100%; }
+
+        .btn:active { transform: scale(0.95); }
+        .btn:disabled { opacity: 0.35; pointer-events: none; }
+
+        .btn-glass {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.45);
+        }
+
+        .btn-glass:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.15);
+            color: var(--text);
+        }
+
+        .hidden { display: none !important; }
+
+        /* ===== Card Overlay (Zoom) ===== */
+        .card-overlay {
+            position: fixed; inset: 0;
+            z-index: 10000;
+            background: rgba(10,10,20,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            cursor: pointer;
+        }
+
+        .card-overlay.active { opacity: 1; }
+
+        .card-overlay img {
+            max-width: 88vw;
+            max-height: 85vh;
+            border-radius: 18px;
+            box-shadow:
+                0 30px 90px rgba(0,0,0,0.6),
+                0 0 0 1px rgba(0,0,0,0.05);
+            transform: scale(0.85);
+            transition: transform 0.5s var(--ease-out-back);
+        }
+
+        .card-overlay.active img { transform: scale(1); }
+
+        /* ===== Keyframes ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                transform:
+                    translate(calc(var(--i) * -0.8px), calc(var(--i) * -1.6px))
+                    rotate(calc(var(--i) * 0.35deg))
+                    scale(1);
+            }
+            50% {
+                transform:
+                    translate(calc(var(--i) * -0.8px), calc(var(--i) * -1.6px - 5px))
+                    rotate(calc(var(--i) * 0.35deg + 0.8deg))
+                    scale(1.03);
+            }
+        }
+
+        @keyframes shuffle {
+            0%   { transform: translate(calc(var(--i)*-0.8px), calc(var(--i)*-1.6px)) rotate(calc(var(--i)*0.35deg)); }
+            15%  { transform: translate(calc(var(--i)*-0.8px - 14px), calc(var(--i)*-1.6px + 2px)) rotate(calc(var(--i)*0.35deg - 7deg)); }
+            35%  { transform: translate(calc(var(--i)*-0.8px + 12px), calc(var(--i)*-1.6px - 4px)) rotate(calc(var(--i)*0.35deg + 5deg)); }
+            55%  { transform: translate(calc(var(--i)*-0.8px - 8px), calc(var(--i)*-1.6px + 3px)) rotate(calc(var(--i)*0.35deg - 3deg)); }
+            75%  { transform: translate(calc(var(--i)*-0.8px + 4px), calc(var(--i)*-1.6px - 1px)) rotate(calc(var(--i)*0.35deg + 1.5deg)); }
+            100% { transform: translate(calc(var(--i)*-0.8px), calc(var(--i)*-1.6px)) rotate(calc(var(--i)*0.35deg)); }
+        }
+
+        /* ===== Responsive ===== */
+
+        /* Small phones (iPhone SE etc.) */
+        @media (max-width: 374px) {
+            h1 { font-size: 2.4rem; }
+            .subtitle { font-size: 0.7rem; letter-spacing: 0.2em; }
+            .hand { gap: 5px; padding: 0 4px; }
+            .card { width: min(100%, calc((100dvh - 200px) / 3 * 5 / 7)); }
+        }
+
+        /* Tablets & wide screens: 3 cols × 2 rows */
+        @media (min-width: 600px) {
+            .hand {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 14px;
+                padding: 0 clamp(20px, 4vw, 48px);
+            }
+            .card { width: min(100%, 220px, calc((100dvh - 220px) / 2 * 5 / 7)); }
+            .deck { width: clamp(110px, 18vw, 150px); }
+        }
+
+        /* Tablets 9-10" */
+        @media (min-width: 768px) {
+            .app { padding: 2.5rem 1.5rem 1.5rem; }
+            h1 { font-size: clamp(3.5rem, 8vw, 5rem); }
+            .subtitle { font-size: 1.05rem; }
+            .hand { gap: 18px; padding: 0 clamp(40px, 8vw, 100px); }
+            .card { width: min(100%, 240px, calc((100dvh - 250px) / 2 * 5 / 7)); }
+            .btn { font-size: 1rem; padding: 0.9rem 3rem; border-radius: 18px; }
+        }
+
+        /* Large tablets & laptops */
+        @media (min-width: 1024px) {
+            .app { padding: 3rem 2rem 2rem; }
+            .hand { gap: 22px; padding: 0 clamp(80px, 12vw, 180px); }
+            .card { width: min(100%, 260px, calc((100dvh - 280px) / 2 * 5 / 7)); padding: 6px; }
+            .deck { width: clamp(120px, 14vw, 170px); }
+        }
+
+        /* Desktops */
+        @media (min-width: 1400px) {
+            .hand { gap: 28px; padding: 0 clamp(140px, 18vw, 320px); }
+            .card { width: min(100%, 280px); }
+        }
+
+        /* Ultra-wide / 4K */
+        @media (min-width: 1920px) {
+            .hand { padding: 0 clamp(280px, 22vw, 500px); }
+            .card { width: min(100%, 300px); }
+        }
+
+        /* ===== Landscape — all devices ===== */
+        /* Layout stays vertical (header top, button bottom), cards in 6×1 row */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .app { padding: 0.5rem 1.2rem 0.8rem; }
+            h1 { font-size: 2rem; }
+            .subtitle { display: none; }
+            .deck { width: clamp(80px, 28vh, 140px); }
+            .hand {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 6px;
+                padding: 0 8px;
+            }
+            .card { width: min(100%, calc((100dvh - 120px) * 5 / 7)); }
+            .controls { margin-top: 0.4rem; }
+            .btn { font-size: 0.85rem; padding: 0.55rem 1.8rem; }
+        }
+
+        /* Landscape — tablets (taller landscape) */
+        @media (orientation: landscape) and (min-height: 601px) and (min-width: 900px) {
+            .hand {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                padding: 0 clamp(60px, 10vw, 160px);
+            }
+            .card { width: min(100%, 220px, calc((100dvh - 220px) / 2 * 5 / 7)); }
+        }
+
+        /* Landscape — large tablets / laptops */
+        @media (orientation: landscape) and (min-height: 700px) and (min-width: 1200px) {
+            .hand { gap: 24px; padding: 0 clamp(120px, 16vw, 300px); }
+            .card { width: min(100%, 260px, calc((100dvh - 260px) / 2 * 5 / 7)); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grain"></div>
+
+    <div class="app">
+        <header>
+            <h1>52 / 6</h1>
+            <p class="subtitle">Разумная йога</p>
+        </header>
+
+        <div class="arena">
+            <div class="deck" id="deck">
+                <div class="deck-card" style="--i:0"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:1"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:2"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:3"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
+                <div class="deck-card" style="--i:4"><img src="cards/ZPУБАШКА.jpg" alt="" draggable="false"></div>
+            </div>
+            <div class="hand" id="hand"></div>
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="btn btn-primary" id="dealBtn">Сдать</button>
+        </div>
+    </div>
+
+<script>
+(() => {
+    const VALUES = ['1','2','3','4','5','6','7','8','9','T','J','D','K'];
+    const SUITS = ['1','2','3','4'];
+    const ALL_CARDS = [];
+    VALUES.forEach(v => SUITS.forEach(s => ALL_CARDS.push(`${v}_${s}`)));
+
+    const BACK_IMG = 'cards/ZPУБАШКА.jpg';
+
+    const deck = document.getElementById('deck');
+    const hand = document.getElementById('hand');
+    const dealBtn = document.getElementById('dealBtn');
+
+    let isDealt = false;
+    let isAnimating = false;
+    let deckCenter = { x: 0, y: 0 };
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    function pickRandom(arr, n) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a.slice(0, n);
+    }
+
+    function createCard(name) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-face card-front">
+                    <img src="cards/${name}.jpg" alt="Поза" draggable="false">
+                </div>
+                <div class="card-face card-back">
+                    <img src="${BACK_IMG}" alt="" draggable="false">
+                </div>
+            </div>`;
+        return card;
+    }
+
+    const hasHover = window.matchMedia('(hover: hover)').matches;
+
+    function setupHover(card, rot) {
+        if (!hasHover) return;
+        card.addEventListener('mouseenter', () => {
+            if (!card._landed) return;
+            card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease';
+            card.style.transform = `translateY(-8px) scale(1.04) rotate(${rot}deg)`;
+            card.classList.add('hover-lift');
+        });
+        card.addEventListener('mouseleave', () => {
+            if (!card._landed) return;
+            card.style.transition = 'transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease';
+            card.style.transform = `rotate(${rot}deg)`;
+            card.classList.remove('hover-lift');
+        });
+    }
+
+    async function deal() {
+        if (isAnimating) return;
+        isAnimating = true;
+        dealBtn.disabled = true;
+
+        const dr = deck.getBoundingClientRect();
+        deckCenter = { x: dr.left + dr.width / 2, y: dr.top + dr.height / 2 };
+
+        deck.classList.add('shuffling');
+        await sleep(500);
+        deck.classList.remove('shuffling');
+
+        const chosen = pickRandom(ALL_CARDS, 6);
+        chosen.forEach(name => hand.appendChild(createCard(name)));
+
+        const cards = hand.querySelectorAll('.card');
+        const offsets = [];
+        const rotations = [-2.2, 1.4, -0.8, 1.8, -1.5, 0.6];
+
+        cards.forEach((card, i) => {
+            const r = card.getBoundingClientRect();
+            offsets.push({
+                x: deckCenter.x - (r.left + r.width / 2),
+                y: deckCenter.y - (r.top + r.height / 2)
+            });
+            card.style.transform = `translate(${offsets[i].x}px, ${offsets[i].y}px) scale(0.65)`;
+            card.style.opacity = '0';
+            card._landed = false;
+            setupHover(card, rotations[i]);
+        });
+
+        hand.offsetHeight;
+        deck.classList.add('hidden');
+
+        for (let i = 0; i < cards.length; i++) {
+            const card = cards[i];
+            const rot = rotations[i];
+
+            await sleep(130);
+
+            card.style.transition = 'transform 0.8s var(--ease-out-back), opacity 0.4s ease';
+            card.style.transform = `rotate(${rot}deg)`;
+            card.style.opacity = '1';
+
+            setTimeout(() => {
+                card.querySelector('.card-inner').style.transform = 'rotateY(180deg)';
+            }, 180);
+
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        await sleep(850);
+        cards.forEach(c => { c._landed = true; });
+
+        dealBtn.textContent = 'Ещё раз';
+        dealBtn.disabled = false;
+        isDealt = true;
+        isAnimating = false;
+    }
+
+    async function redeal() {
+        if (isAnimating) return;
+        isAnimating = true;
+        dealBtn.disabled = true;
+
+        const cards = [...hand.querySelectorAll('.card')];
+
+        cards.forEach(card => {
+            card._landed = false;
+            card.classList.remove('hover-lift');
+
+            const r = card.getBoundingClientRect();
+            const dx = deckCenter.x - (r.left + r.width / 2);
+            const dy = deckCenter.y - (r.top + r.height / 2);
+
+            card.querySelector('.card-inner').style.transform = 'rotateY(0)';
+            card.style.transition = 'transform 0.4s cubic-bezier(0.55, 0, 0.75, 0), opacity 0.25s ease 0.1s';
+            card.style.transform = `translate(${dx}px, ${dy}px) scale(0.65)`;
+            card.style.opacity = '0';
+        });
+
+        await sleep(480);
+        hand.innerHTML = '';
+        deck.classList.remove('hidden');
+        await sleep(80);
+
+        isDealt = false;
+        isAnimating = false;
+        deal();
+    }
+
+    dealBtn.addEventListener('click', () => {
+        if (isDealt) redeal();
+        else deal();
+    });
+
+    deck.addEventListener('click', () => {
+        if (!isDealt && !isAnimating) deal();
+    });
+
+    hand.addEventListener('click', (e) => {
+        const card = e.target.closest('.card');
+        if (!card || !card._landed || isAnimating) return;
+
+        const img = card.querySelector('.card-front img');
+        if (!img) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'card-overlay';
+        const zoomed = document.createElement('img');
+        zoomed.src = img.src;
+        zoomed.alt = 'Поза';
+        zoomed.draggable = false;
+        overlay.appendChild(zoomed);
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => overlay.classList.add('active'));
+        });
+
+        const close = () => {
+            overlay.classList.remove('active');
+            overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+        };
+
+        overlay.addEventListener('click', close);
+        const onKey = (e) => {
+            if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
+        };
+        document.addEventListener('keydown', onKey);
+    });
+
+    const preload = new Image();
+    preload.src = BACK_IMG;
+})();
+</script>
+
+</body>
+</html>
